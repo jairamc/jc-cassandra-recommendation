@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>me.jairam</groupId>
-  <artifactId>jc-cassandra-checkins</artifactId>
+  <artifactId>jc-cassandra-recommendation</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>jc-cassandra-checkins</name>
+  <name>jc-cassandra-recommendation</name>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -39,5 +39,15 @@
     	<artifactId>slf4j-log4j12</artifactId>
     	<version>1.6.1</version>
     </dependency>
+    <dependency>
+    	<groupId>me.jairam</groupId>
+    	<artifactId>jc-utils</artifactId>
+    	<version>0.0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+	    <groupId>org.json</groupId>
+	    <artifactId>json</artifactId>
+	    <version>20090211</version>
+</dependency>
   </dependencies>
 </project>
