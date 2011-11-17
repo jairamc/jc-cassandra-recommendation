@@ -48,6 +48,16 @@
 	    <groupId>org.json</groupId>
 	    <artifactId>json</artifactId>
 	    <version>20090211</version>
-</dependency>
+	</dependency>
+    <dependency>
+    	<groupId>org.apache.hadoop</groupId>
+    	<artifactId>hadoop-core</artifactId>
+    	<version>0.20.205.0</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.apache.cassandra</groupId>
+    	<artifactId>cassandra-all</artifactId>
+    	<version>1.0.2</version>
+    </dependency>
   </dependencies>
 </project>
