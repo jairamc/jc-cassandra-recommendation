@@ -1,0 +1,5 @@
+Users = LOAD 'cassandra://DocumentStore/Users' USING CassandraStorage() AS (key, columns: bag {T: tuple(col_name, value)});
+flatUsers = FOREACH Users GENERATE key, flatten(columns);
+books = FILTER flatUsers BY $1 == 'books';
+bookCounts = FOREACH books GENERATE $0, SIZE(STRSPLIT((chararray) $2, ','));
+maxBooks = FOREACH booksCount GENERATE $0, MAX($1);
