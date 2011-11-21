@@ -42,11 +42,16 @@ public class SetupCluster {
 		ColumnFamilyDefinition suggestions = HFactory.createColumnFamilyDefinition("DocumentStore",                              
 				"Suggestions", 
 				ComparatorType.UTF8TYPE);
+		
+		//DocumentInverse
+		ColumnFamilyDefinition documentInverse = HFactory.createColumnFamilyDefinition("DocumentStore",                              
+				"DocumentInverse", 
+				ComparatorType.UTF8TYPE);
 
 		KeyspaceDefinition newKeyspace = HFactory.createKeyspaceDefinition("DocumentStore",                 
 				ThriftKsDef.DEF_STRATEGY_CLASS,  
 				1, 
-				Arrays.asList(documents, users, authors, suggestions));
+				Arrays.asList(documents, users, authors, suggestions, documentInverse));
 		
 		//Add the schema to the cluster.
 		//"true" as the second param means that Hector will block until all nodes see the change.

@@ -6,7 +6,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -33,7 +37,7 @@ public class SetUpSampleData extends DefaultHandler
 	private boolean processingDoc = false;
 	private boolean processingTitle = false;
 	private StringBuilder temp;
-	private ArrayList<String> authors;
+	private HashMap<String, String> authors;
 	private String title;
 	
 	private ArrayList<String> titleKeys;
@@ -45,7 +49,7 @@ public class SetUpSampleData extends DefaultHandler
 
 	public SetUpSampleData()
 	{
-		authors = new ArrayList<String>();
+		authors = new HashMap<String, String>();
 
 		ks = new Keyspace("Test Cluster", "DocumentStore", "localhost:9160");
 		documentCf = new ColumnFamily(ks, "Documents");
@@ -99,21 +103,21 @@ public class SetUpSampleData extends DefaultHandler
 		{
 			processingAuthorGroup = false;
 
-			String key = MessageHash.getHash(title, MessageHash.MD5);
+			String key = UUID.randomUUID().toString();
 			
 			titleKeys.add(key);
 
 			documentCf.putColumn(key, "title", title);
 			documentCf.putColumn(key, "authors",authors.toString());
 
-			for(String author: authors)
+			for(Map.Entry<String, String> author: authors.entrySet())
 			{
-				key = MessageHash.getHash(author, MessageHash.MD5);
+				key = author.getKey();
 				
 				Row row = authorCf.getRow(key, "", "");
 				if(row.isEmpty())
 				{
-					authorCf.putColumn(key, "author", author);
+					authorCf.putColumn(key, "author", author.getValue());
 					authorCf.putColumn(key, "title", title);
 				}
 				else
@@ -191,7 +195,7 @@ public class SetUpSampleData extends DefaultHandler
 			{
 				temp.append(' ');
 				temp.append(new String(ch, start, length));
-				authors.add(temp.toString());
+				authors.put(UUID.randomUUID().toString(), temp.toString());
 			}
 		}
 
@@ -214,17 +218,31 @@ public class SetUpSampleData extends DefaultHandler
 		for(int i=0; i < numOfUsers; i++)
 		{
 			ArrayList<String> list = new ArrayList<String>();
-			int numberOfBooksForUser = numberOfBooksGenerator.nextInt(10);
+			int numberOfBooksForUser = numberOfBooksGenerator.nextInt(10)+1;
 			for(int j=0; j < numberOfBooksForUser; j++)
 			{
 				list.add(titleKeys.get(titleKeyNumberGenerator.nextInt(numberOfTitles)));
 			}
 			
-			JSONArray bookList = new JSONArray(Arrays.asList(list));
+//			JSONArray bookList = new JSONArray(Arrays.asList(list));
 			
-			String key = MessageHash.getHash(br.readLine(), MessageHash.MD5);
-			userCf.putColumn(key, "books", bookList.toString());
+			String key = UUID.randomUUID().toString();
+			userCf.putColumn(key, "name", br.readLine());
+			
+			StringBuilder sb = new StringBuilder();
+			for(String book: list)
+			{
+				//sb.append('"');
+				sb.append(book);
+				//sb.append('"');
+				sb.append(",");
+			}
+			sb.deleteCharAt(sb.length()-1);
+			userCf.putColumn(key, "books", sb.toString());
+//			userCf.putColumn(key, "books", list.toString());
+			
 		}
+		br.close();
 	}
 	
 	
@@ -244,11 +262,11 @@ public class SetUpSampleData extends DefaultHandler
 				size += f.length();
 				s.parseDocument(f.getAbsolutePath());
 			}
-			if(size > (50*1024*1024)) break;
+			if(size > (25*1024*1024)) break;
 		}
 		
 		
-		s.addUsers(100, "UserNames.txt");
+		s.addUsers(100, "/home/jairam/workspace/UserNames.txt");
 
 		System.exit(0);
 	}

@@ -35,7 +35,8 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InverseDocumentsIndex extends Configured implements Tool {
+public class InverseDocumentsIndex extends Configured implements Tool 
+{
 
 	private static final Logger logger = LoggerFactory.getLogger(InverseDocumentsIndex.class);
 
@@ -44,7 +45,8 @@ public class InverseDocumentsIndex extends Configured implements Tool {
 	private static String INPUT_COLUMN_FAMILY = "Users";
 	private static String INPUT_COLUMN = "books";
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception 
+	{
 		// Let ToolRunner handle generic command-line options
 		ToolRunner.run(new Configuration(), new InverseDocumentsIndex(), args);
 		System.exit(0);
@@ -67,21 +69,14 @@ public class InverseDocumentsIndex extends Configured implements Tool {
 			String value = ByteBufferUtil.string(column.value());
 			logger.info("read " + ByteBufferUtil.string(key) + ":" + value + " from " + context.getInputSplit());
 
-			JSONArray titles;
-			try 
+
+			String[] titles = value.split(",");
+			Text user = new Text(key.array());
+			for(String title: titles)
 			{
-				titles = new JSONArray(value);
-				Text user = new Text(key.array());
-				for(int i = 0; i < titles.length(); i++)
-				{
-					context.write(new Text(titles.getString(i)), user);
-				}
+				context.write(new Text(title), user);
 			}
-			catch (JSONException e) 
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+
 		}
 	}
 
@@ -90,11 +85,13 @@ public class InverseDocumentsIndex extends Configured implements Tool {
 
 		public void reduce(Text title, Iterable<Text> users, Context context) throws IOException, InterruptedException
 		{
-			JSONArray userList = new JSONArray();
+			StringBuilder userList = new StringBuilder();
 			for(Text user: users)
 			{
-				userList.put(user.toString());
+				userList.append(user.toString());
+				userList.append(",");
 			}
+			userList.deleteCharAt(userList.length() - 1);
 			context.write(ByteBufferUtil.bytes(title.toString()), Collections.singletonList(getMutation("users", userList.toString())));
 		}
 
@@ -113,8 +110,9 @@ public class InverseDocumentsIndex extends Configured implements Tool {
 
 	}
 
-	@Override
-	public int run(String[] args) throws Exception {
+
+	public int run(String[] args) throws Exception 
+	{
 
 		Job job = new Job(getConf(), "InverseDocumentsIndex");
 		job.setJarByClass(InverseDocumentsIndex.class);
