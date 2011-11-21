@@ -1,0 +1,11 @@
+SELECT 
+    max(a.booksCount)
+FROM
+(
+    SELECT 
+        name, 
+        size(split(books,",")) as booksCount
+    FROM
+        Users
+) a
+
