@@ -53,6 +53,11 @@ public class InverseDocumentsIndex extends Configured implements Tool
 
 	}
 
+	/**
+	 * Mapper responsible for reading from Cassandra
+	 * @author jairam
+	 *
+	 */
 	public static class IndexMapper extends Mapper<ByteBuffer, SortedMap<ByteBuffer, IColumn>, Text, Text>
 	{
 		/* (non-Javadoc)
@@ -71,7 +76,7 @@ public class InverseDocumentsIndex extends Configured implements Tool
 
 
 			String[] titles = value.split(",");
-			Text user = new Text(key.array());
+			Text user = new Text(ByteBufferUtil.string(key));
 			for(String title: titles)
 			{
 				context.write(new Text(title), user);
@@ -80,6 +85,11 @@ public class InverseDocumentsIndex extends Configured implements Tool
 		}
 	}
 
+	/**
+	 * Reducer responsible for writing to Cassandra
+	 * @author jairam
+	 *
+	 */
 	public static class IndexReducer extends Reducer<Text, Text, ByteBuffer, List<Mutation>>
 	{
 
@@ -126,9 +136,11 @@ public class InverseDocumentsIndex extends Configured implements Tool
 		job.setOutputKeyClass(ByteBuffer.class);
 		job.setOutputValueClass(List.class);
 
+		// Cassandra specific code START
+		
 		job.setInputFormatClass(ColumnFamilyInputFormat.class);
 		job.setOutputFormatClass(ColumnFamilyOutputFormat.class);
-
+		
 		ConfigHelper.setOutputColumnFamily(job.getConfiguration(), KEYSPACE, OUTPUT_COLUMN_FAMILY);
 
 		ConfigHelper.setRpcPort(job.getConfiguration(), "9160");
@@ -138,6 +150,8 @@ public class InverseDocumentsIndex extends Configured implements Tool
 		SlicePredicate predicate = new SlicePredicate().setColumn_names(Arrays.asList(ByteBufferUtil.bytes(INPUT_COLUMN)));
 		ConfigHelper.setInputSlicePredicate(job.getConfiguration(), predicate);
 
+		// Cassandra specific code END
+		
 		job.waitForCompletion(true);
 
 		return 0;

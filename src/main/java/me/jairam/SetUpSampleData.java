@@ -223,23 +223,18 @@ public class SetUpSampleData extends DefaultHandler
 			{
 				list.add(titleKeys.get(titleKeyNumberGenerator.nextInt(numberOfTitles)));
 			}
-			
-//			JSONArray bookList = new JSONArray(Arrays.asList(list));
-			
+		
 			String key = UUID.randomUUID().toString();
 			userCf.putColumn(key, "name", br.readLine());
 			
 			StringBuilder sb = new StringBuilder();
 			for(String book: list)
 			{
-				//sb.append('"');
 				sb.append(book);
-				//sb.append('"');
 				sb.append(",");
 			}
 			sb.deleteCharAt(sb.length()-1);
 			userCf.putColumn(key, "books", sb.toString());
-//			userCf.putColumn(key, "books", list.toString());
 			
 		}
 		br.close();
@@ -253,8 +248,11 @@ public class SetUpSampleData extends DefaultHandler
 	public static void main(String[] args) throws IOException {
 		SetUpSampleData s = new SetUpSampleData();
 
+		String documentFile = args[0];
+		String usernameFile = args[1];
+		
 		long size = 0;
-		File file = new File("/home/jairam/workspace/Documents");
+		File file = new File(documentFile);
 		for(File dir: file.listFiles())
 		{
 			for(File f: dir.listFiles())
@@ -266,7 +264,7 @@ public class SetUpSampleData extends DefaultHandler
 		}
 		
 		
-		s.addUsers(100, "/home/jairam/workspace/UserNames.txt");
+		s.addUsers(100, usernameFile);
 
 		System.exit(0);
 	}
